@@ -1,0 +1,9 @@
+#include "TEMPLATE.inc"
+
+module TEMPLATE {
+	reg count[10] = 0;
+	reg_out = count;	
+	func exe {
+		count++;
+	}
+}

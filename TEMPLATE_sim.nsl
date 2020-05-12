@@ -1,0 +1,15 @@
+#include "TEMPLATE.inc"
+declare TEMPLATE_sim simulation{}
+
+module TEMPLATE_sim {
+	TEMPLATE nsltemp0;
+	reg count[9]=0;
+
+	count++;
+	nsltemp0.exe();
+	if (count>0xFF){
+		_finish("end");
+	}
+}	
+	
+	
