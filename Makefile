@@ -47,6 +47,7 @@ RESULT		= result.txt
 
 IVERILOG	= iverilog.exe
 VVP 		= vvp.exe
+VERILATOR	= verilator
 GTKWAVE		= gtkwave.exe
 
 ##################################################################################
@@ -116,4 +117,30 @@ clean:
 	rm -rf - $(DEBUGDIR)
 
 ##################################################################################
+#verilator
+##################################################################################
 
+%.sim:
+	@if [ ! -d $(DEBUGDIR) ]; then \
+		echo mkdir $(DEBUGDIR); \
+		mkdir $(DEBUGDIR); \
+	fi
+	( cd $(DEBUGDIR); make -f ../Makefile SRCDIR=.. TARGET=$(@:%.sim=%) V$(@:%.sim=%) )
+
+V$(TARGET).h: $(VFILES) $(TARGET)_sim.cpp
+	sed -i -e "s/#1//" *.v
+	$(VERILATOR) --trace --trace-params --trace-structs --trace-underscore --cc $(VERIOPT) $(TARGET).v --exe $(SRCDIR)/$(TARGET)_sim.cpp
+
+V$(TARGET): V$(TARGET).h 
+	@echo "simulation"
+	(cd obj_dir; make -j -f V$(TARGET).mk V$(TARGET) )
+
+%.run:%.sim
+	(cd $(DEBUGDIR); time ./obj_dir/V$(@:%.run=%))
+	(cd $(DEBUGDIR); pwd; $(GTKWAVE) $(@:%.run=%).vcd)
+
+%.rerun:
+	(cd $(DEBUGDIR); time ./obj_dir/V$(@:%.rerun=%))
+	(cd $(DEBUGDIR); pwd; $(GTKWAVE) $(@:%.rerun=%).vcd)
+
+##################################################################################
